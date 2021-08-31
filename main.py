@@ -1,16 +1,42 @@
-# This is a sample Python script.
+from bs4 import BeautifulSoup
+import requests
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+url = 'https://www.timesjobs.com/candidate/job-search.html?searchType=personalizedSearch&from=submit&txtKeywords=Android+Development&txtLocation='
+html_text = requests.get(url).text
+soup = BeautifulSoup(html_text,'lxml')
+
+jobs = soup.find_all('li', class_ = 'clearfix job-bx wht-shd-bx')
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+
+for job in jobs:
+
+    # This is additional code for this,Android and Development are defined differently
+    title = job.find_all('strong', class_='blkclor')
+    title = title[0].text + ' ' + title[1].text
+    # additional end
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+    company = job.find('h3', class_='joblist-comp-name').text.strip()
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    print (f'Title :  {title} \t Company : {company}')
+    experienceTag = job.find('ul', class_ = 'top-jd-dtl clearfix').text
+    experience = list(experienceTag)[12:]
+    experience = ''.join(experience)
+    newExp = experience.split()
+    experience = []
+    for i in range (10):
+        if newExp[i] == 'yrs':
+            break
+        experience.append(newExp[i])
+
+    location = newExp[-1]
+    experience = ''.join(experience) + " years"
+    print (f'Experience : {experience} \t Location : {location}')
+
+    keySkills = job.find('span', class_ = 'srp-skills').text.strip()
+    descTag = job.find('ul', class_='list-job-dtl clearfix')
+    description = descTag.text.strip()
+    print ("Key Skills : ",keySkills)
+
+    print (("--------------------------------------")*2)
